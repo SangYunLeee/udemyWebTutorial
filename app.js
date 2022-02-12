@@ -19,9 +19,9 @@ const userRouter = require('./routes/users');
 const passport = require('passport');
 const passportLocal = require('passport-local');
 const User = require('./models/user');
+const dbUrl = process.env.DB_URL;
 
-
-mongu.connect('mongodb://localhost:27017/yelp-camp', {
+mongu.connect(dbUrl, {
 });
 
 const db = mongu.connection;
