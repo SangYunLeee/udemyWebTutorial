@@ -20,6 +20,22 @@ const passport = require('passport');
 const passportLocal = require('passport-local');
 const User = require('./models/user');
 const dbUrl = process.env.DB_URL;
+const MongoStore = require('connect-mongo');
+
+
+const secret = process.env.SECRET || 'thissmongohouldbebettersecret!';
+
+const mongoConfig = {
+    mongoUrl: dbUrl,
+    touchAfter: 3 * 60, // 3min
+    secret
+}
+
+const store = MongoStore.create(mongoConfig);
+
+store.on("error", function (e) {
+    console.log("session store error", e)
+});
 
 mongu.connect(dbUrl, {
 });
@@ -39,18 +55,18 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 const sessionConfig = {
     name: 'session',
-    secret: 'thisshouldbebettersecret!',
+    secret,
     resave: true,
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
         expires: Date.now() + 10000 * 60 * 60 * 24 * 7,
         maxAge: 10000 * 60 * 60 * 24 * 7
-    }
+    },
+    store
 }
 app.use(session(sessionConfig));
 app.use(flash());
-
 
 app.use(passport.initialize());
 app.use(passport.session());
